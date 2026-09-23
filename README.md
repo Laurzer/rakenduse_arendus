@@ -29,3 +29,6 @@ source ~/.bashrc
 cd /workspaces/rakenduse_arendus
 
 flutter --version
+
+
+flutter run -d web-server --web-hostname 0.0.0.0
