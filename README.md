@@ -19,8 +19,13 @@ samples, guidance on mobile development, and a full API reference.
 ## Codespace setup
 
 cd ~
+
 git clone https://github.com/flutter/flutter.git -b stable
+
 echo 'export PATH="$HOME/flutter/bin:$PATH"' >> ~/.bashrc
+
 source ~/.bashrc
+
 cd /workspaces/rakenduse_arendus
+
 flutter --version
