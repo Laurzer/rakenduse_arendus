@@ -450,7 +450,7 @@ class _PeoplePageState extends State<PeoplePage> {
 import 'package:http/http.dart' as http;
 import 'package:material_ui/material_ui.dart';
 Future<http.Response> fetchAlbum() {
-  return http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+  return http.get(Uri.parse('http://192.168.42.160:3001/people'));
 }
 class Album {
   final int userId;
