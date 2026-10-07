@@ -1,0 +1,24 @@
+
+[
+ {
+  
+  "nimi": "Joonas",
+  "vanus": "14",
+  "member": true
+}
+  ,{
+    "nimi": "Juhan",
+    "vanus": "15",
+    "member":true
+  },
+  {
+    "nimi": "Johannes",
+    "vanus": "23",
+    "member":true
+  },
+  {
+    "nimi": "Jonas",
+    "vanus": "20",
+    "member":true
+  }
+]

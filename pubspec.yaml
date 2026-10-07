@@ -87,3 +87,10 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+dependencies:
+  flutter:
+    sdk: flutter
+  path_provider: ^2.1.5
+flutter:
+  assets:
+    - assets/people.json
