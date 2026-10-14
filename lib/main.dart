@@ -503,7 +503,10 @@ dependencies:
   loading_icon_button: ^1.1.0
   import 'package:loading_icon_button/loading_icon_button.dart';
   LoadingButton(
-  Uri.parse('http://192.168.46.75:3001/people'),
+  final response = await http.get(
+    Uri.parse('http://192.168.46.75:3001/people'),
+    headers: {'Accept': 'application/json'},
+  );
   Theme.of(context).primaryColor
   LoadingButtonSizing.legacy
   onPressed: () async => submit(),
