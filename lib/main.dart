@@ -496,4 +496,25 @@ class _MyAppState extends State<MyApp> {
   }
   // ···
 }
+//----------------------------------------------
+// Loading button
+//-----------------------------------------------
+dependencies:
+  loading_icon_button: ^1.1.0
+  import 'package:loading_icon_button/loading_icon_button.dart';
+  LoadingButton(
+  Uri.parse('http://192.168.46.75:3001/people'),
+  Theme.of(context).primaryColor
+  LoadingButtonSizing.legacy
+  onPressed: () async => submit(),
+  onSuccess: () => debugPrint('done'),
+  onFailure: (Object error, StackTrace stack) => report(error, stack),
+  child: const Text('Submit'),
+)
 
+
+//Commands 
+// git pull
+// git add .
+// git push
+// git commit
