@@ -1,523 +1,435 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+
+// Muuda siin: 300X, kus X on teie tiimi number (ülesanne 6).
+const String serveriAadress = 'http://192.168.46.75:3001/people';
+
+// Muuda siin: teie grupi päris liikmed (ülesanded 2 ja 3).
+const List<String> grupiLiikmed = ['Laura-Liis', 'Anastasia'];
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MinuRakendus());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MinuRakendus extends StatelessWidget {
+  const MinuRakendus({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Rakenduse arendus',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      // Ülesanne 2: igal lehel on oma aadress.
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const KoduLeht(),
+        '/meie': (context) => const MeieLeht(),
+        '/inimesed': (context) => const InimesedLeht(),
+        '/server': (context) => const ServerLeht(),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+// Sama päis ja navigeerimine kõigil lehtedel.
+class LeheRaam extends StatelessWidget {
+  const LeheRaam({
+    super.key,
+    required this.pealkiri,
+    required this.sisu,
+    this.lisaNupp,
+  });
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  final String pealkiri;
+  final Widget sisu;
+  final Widget? lisaNupp;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(pealkiri),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                _lingiNupp(context, 'Kodu', '/'),
+                _lingiNupp(context, 'Meie', '/meie'),
+                _lingiNupp(context, 'Inimesed', '/inimesed'),
+                _lingiNupp(context, 'Server', '/server'),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: sisu,
+      floatingActionButton: lisaNupp,
+    );
+  }
+
+  Widget _lingiNupp(BuildContext context, String tekst, String aadress) {
+    return TextButton(
+      onPressed: () => Navigator.of(context).pushReplacementNamed(aadress),
+      child: Text(tekst),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+// ------------------------------------------------------------
+// Ülesanded 1 ja 2: koduleht
+// ------------------------------------------------------------
+class KoduLeht extends StatelessWidget {
+  const KoduLeht({super.key});
 
-  void _incrementCounter() {
+  @override
+  Widget build(BuildContext context) {
+    return const LeheRaam(
+      pealkiri: 'Kodu',
+      sisu: Padding(
+        padding: EdgeInsets.all(24),
+        child: Text(
+          'Tere tulemast! See on meie grupi Flutteri õpperakendus. '
+          'Rakenduses saab vaadata grupi liikmeid, lugeda andmeid failist '
+          'ning hallata serveris olevaid inimesi.',
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------------------------------------------------
+// Ülesanded 2 ja 3: grupi liikmed
+// ------------------------------------------------------------
+class MeieLeht extends StatefulWidget {
+  const MeieLeht({super.key});
+
+  @override
+  State<MeieLeht> createState() => _MeieLehtState();
+}
+
+class _MeieLehtState extends State<MeieLeht> {
+  bool nimekiriNahtav = false;
+  int nimeJarjekord = -1;
+
+  void vahetaNimekirja() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      nimekiriNahtav = !nimekiriNahtav;
+    });
+  }
+
+  void naitaJargmist() {
+    setState(() {
+      nimeJarjekord = (nimeJarjekord + 1) % grupiLiikmed.length;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
+    return LeheRaam(
+      pealkiri: 'Meie',
+      sisu: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          ElevatedButton(
+            onPressed: vahetaNimekirja,
+            child: Text(nimekiriNahtav ? 'Peida nimekiri' : 'Näita nimekirja'),
+          ),
+          if (nimekiriNahtav)
+            for (final nimi in grupiLiikmed)
+              ListTile(leading: const Icon(Icons.person), title: Text(nimi)),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: naitaJargmist,
+            child: const Text('Näita järgmist nime'),
+          ),
+          const SizedBox(height: 12),
+          if (nimeJarjekord >= 0)
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+              grupiLiikmed[nimeJarjekord],
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        ],
       ),
     );
   }
 }
-Future<void> readJson() async {
-  final String response = await rootBundle.loadString('assets/sample.json');
-  final data = await json.decode(response);
-// ... 
-}
-import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// ------------------------------------------------------------
+// Ülesanne 4: andmete lugemine failist
+// ------------------------------------------------------------
+class InimesedLeht extends StatefulWidget {
+  const InimesedLeht({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'People',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const PeoplePage(),
-    );
-  }
+  State<InimesedLeht> createState() => _InimesedLehtState();
 }
 
-class PeoplePage extends StatefulWidget {
-  const PeoplePage({super.key});
-
-  @override
-  State<PeoplePage> createState() => _PeoplePageState();
-}
-
-class _PeoplePageState extends State<PeoplePage> {
-  List<Map<String, dynamic>> people = [];
-
-  bool isLoading = true;
-
-  // Controllers for the add-person form
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController ageController = TextEditingController();
-
-  bool member = true;
+class _InimesedLehtState extends State<InimesedLeht> {
+  List<Map<String, dynamic>> inimesed = [];
+  bool laeb = true;
+  String? viga;
 
   @override
   void initState() {
     super.initState();
-    loadPeople();
+    loeFail();
+  }
+
+  Future<void> loeFail() async {
+    try {
+      final tekst = await rootBundle.loadString('assets/inimesed.json');
+      final andmed = jsonDecode(tekst) as List<dynamic>;
+      if (!mounted) return;
+      setState(() {
+        inimesed = andmed.cast<Map<String, dynamic>>();
+        laeb = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        viga = 'Faili lugemine ebaõnnestus: $e';
+        laeb = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget sisu;
+    if (laeb) {
+      sisu = const Center(child: CircularProgressIndicator());
+    } else if (viga != null) {
+      sisu = Center(child: Text(viga!));
+    } else {
+      sisu = ListView.builder(
+        itemCount: inimesed.length,
+        itemBuilder: (context, indeks) {
+          final inimene = inimesed[indeks];
+          return ListTile(
+            leading: const Icon(Icons.person),
+            title: Text('${inimene['nimi']}'),
+            subtitle: Text('Vanus: ${inimene['vanus']}'),
+            trailing: Text(inimene['member'] == true ? 'Liige' : 'Pole liige'),
+          );
+        },
+      );
+    }
+    return LeheRaam(pealkiri: 'Inimesed failist', sisu: sisu);
+  }
+}
+
+// ------------------------------------------------------------
+// Ülesanded 6 ja 7: serveri andmed ja võrgukutse nupp
+// ------------------------------------------------------------
+class ServerLeht extends StatefulWidget {
+  const ServerLeht({super.key});
+
+  @override
+  State<ServerLeht> createState() => _ServerLehtState();
+}
+
+class _ServerLehtState extends State<ServerLeht> {
+  final nimeVali = TextEditingController();
+  final vanuseVali = TextEditingController();
+
+  List<dynamic> inimesed = [];
+  bool laeb = true;
+  String? viga;
+
+  @override
+  void initState() {
+    super.initState();
+    laeAndmed();
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    ageController.dispose();
+    nimeVali.dispose();
+    vanuseVali.dispose();
     super.dispose();
   }
 
-  // ------------------------------------------------------------
-  // JSON file
-  // ------------------------------------------------------------
-
-  Future<File> getJsonFile() async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return File('${directory.path}/people.json');
-  }
-
-  
-  // Load JSON
-
-
-  Future<void> loadPeople() async {
+  // GET: küsib andmed serverist.
+  Future<void> laeAndmed() async {
+    setState(() {
+      laeb = true;
+      viga = null;
+    });
     try {
-      final file = await getJsonFile();
-
-      // If this is the first time the application runs,
-      // copy the JSON from assets to the writable directory.
-      if (!await file.exists()) {
-        final initialJson =
-            await rootBundle.loadString('assets/people.json');
-
-        await file.writeAsString(initialJson);
+      final vastus = await http.get(Uri.parse(serveriAadress));
+      if (vastus.statusCode != 200) {
+        throw Exception('server vastas koodiga ${vastus.statusCode}');
       }
-
-      // Read the editable JSON file
-      final jsonString = await file.readAsString();
-
-      final decoded = jsonDecode(jsonString);
-
+      final andmed = jsonDecode(vastus.body) as List<dynamic>;
+      if (!mounted) return;
       setState(() {
-        people = List<Map<String, dynamic>>.from(decoded);
-        isLoading = false;
+        inimesed = andmed;
+        laeb = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
-        isLoading = false;
+        viga = 'Andmete laadimine ebaõnnestus: $e';
+        laeb = false;
       });
-
-      debugPrint('Error loading JSON: $e');
     }
   }
 
- 
-  // Save JSON
-
-
-  Future<void> savePeople() async {
+  // POST: lisab inimese. Tagastab true, kui kutse õnnestus.
+  Future<bool> lisaInimene() async {
+    final nimi = nimeVali.text.trim();
+    final vanus = vanuseVali.text.trim();
+    if (nimi.isEmpty || vanus.isEmpty) return false;
     try {
-      final file = await getJsonFile();
-
-      final jsonString = const JsonEncoder.withIndent('  ').convert(people);
-
-      await file.writeAsString(jsonString);
-
-      debugPrint('JSON saved successfully');
+      final vastus = await http.post(
+        Uri.parse(serveriAadress),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'nimi': nimi, 'vanus': vanus, 'member': true}),
+      );
+      if (vastus.statusCode != 200 && vastus.statusCode != 201) return false;
+      await laeAndmed();
+      return true;
     } catch (e) {
-      debugPrint('Error saving JSON: $e');
+      return false;
     }
   }
 
-  // Add a new person
- 
-
-  Future<void> addPerson() async {
-    final name = nameController.text.trim();
-    final age = ageController.text.trim();
-
-    if (name.isEmpty || age.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a name and age.'),
-        ),
-      );
-
-      return;
-    }
-
-    final newPerson = <String, dynamic>{
-      'nimi': name,
-      'vanus': age,
-      'member': member,
-    };
-
-    setState(() {
-      people.add(newPerson);
-    });
-
-    // Automatically save the complete list
-    await savePeople();
-
-    // Clear the form
-    nameController.clear();
-    ageController.clear();
-
-    setState(() {
-      member = true;
-    });
-
-    if (mounted) {
-      Navigator.of(context).pop();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Person added and saved.'),
-        ),
-      );
+  // DELETE: kustutab inimese tema id järgi.
+  Future<void> kustutaInimene(dynamic id) async {
+    try {
+      final vastus = await http.delete(Uri.parse('$serveriAadress/$id'));
+      if (vastus.statusCode >= 300) {
+        throw Exception('server vastas koodiga ${vastus.statusCode}');
+      }
+      await laeAndmed();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Kustutamine ebaõnnestus: $e')));
     }
   }
-
- 
-  // Show add-person form
- 
-
-  void showAddPersonDialog() {
-    nameController.clear();
-    ageController.clear();
-
-    setState(() {
-      member = true;
-    });
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: const Text('Add person'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        hintText: 'Joonas',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    TextField(
-                      controller: ageController,
-                      keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Age',
-                        hintText: '14',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    SwitchListTile(
-                      title: const Text('Member'),
-                      value: member,
-                      onChanged: (value) {
-                        setDialogState(() {
-                          member = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Cancel'),
-                ),
-
-                ElevatedButton(
-                  onPressed: addPerson,
-                  child: const Text('Add'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-
-  // Build UI
- 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('People'),
-      ),
-
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : people.isEmpty
-              ? const Center(
-                  child: Text('No people found.'),
-                )
-              : ListView.builder(
-                  itemCount: people.length,
-                  itemBuilder: (context, index) {
-                    final person = people[index];
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Text(
-                            person['nimi']
-                                    ?.toString()
-                                    .substring(0, 1)
-                                    .toUpperCase() ??
-                                '?',
-                          ),
-                        ),
-
-                        title: Text(
-                          person['nimi']?.toString() ?? '',
-                        ),
-
-                        subtitle: Text(
-                          'Age: ${person['vanus']}',
-                        ),
-
-                        trailing: person['member'] == true
-                            ? const Chip(
-                                label: Text('Member'),
-                              )
-                            : const Chip(
-                                label: Text('Not member'),
-                              ),
-                      ),
-                    );
-                  },
-                ),
-
-      // Add button
-      floatingActionButton: FloatingActionButton(
-        onPressed: showAddPersonDialog,
-        child: const Icon(Icons.add),
+    return LeheRaam(
+      pealkiri: 'Inimesed serveris',
+      sisu: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          TextField(
+            controller: nimeVali,
+            decoration: const InputDecoration(labelText: 'Nimi'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: vanuseVali,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Vanus'),
+          ),
+          const SizedBox(height: 16),
+          // Ülesanne 7. Muudetud andmed viivad nupu tagasi algolekusse.
+          VorguNupp(
+            tekst: 'Saada serverisse',
+            muutused: Listenable.merge([nimeVali, vanuseVali]),
+            onVajutus: lisaInimene,
+          ),
+          const SizedBox(height: 24),
+          if (laeb) const Center(child: CircularProgressIndicator()),
+          if (viga != null) Text(viga!),
+          for (final inimene in inimesed)
+            ListTile(
+              title: Text('${inimene['nimi']}'),
+              subtitle: Text('Vanus: ${inimene['vanus']}'),
+              trailing: IconButton(
+                tooltip: 'Kustuta',
+                icon: const Icon(Icons.delete),
+                onPressed: () => kustutaInimene(inimene['id']),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
-//-----------------------------------------------------------------
-// Ülesanne 6
-//-----------------------------------------------------------------
-import 'package:http/http.dart' as http;
-import 'package:material_ui/material_ui.dart';
-Future<http.Response> fetchAlbum() {
-  return http.get(Uri.parse('http://192.168.42.160:3001/people'));
-}
-class Album {
-  final int userId;
-  final int id;
-  final String title;
 
-  const Album({required this.userId, required this.id, required this.title});
+enum NupuOlek { algne, laeb, onnestus }
 
-  factory Album.fromJson(Map<String, dynamic> json) {
-    return switch (json) {
-      {'userId': int userId, 'id': int id, 'title': String title} => Album(
-        userId: userId,
-        id: id,
-        title: title,
-      ),
-      _ => throw const FormatException('Failed to load album.'),
-    };
-  }
-}
-Future<Album> fetchAlbum() async {
-  final response = await http.get(
-    Uri.parse('http://192.168.42.160:3001/people'),
-    headers: {'Accept': 'application/json'},
-  );
+class VorguNupp extends StatefulWidget {
+  const VorguNupp({
+    super.key,
+    required this.tekst,
+    required this.onVajutus,
+    required this.muutused,
+  });
 
-  if (response.statusCode == 200) {
-    // If the server did return a 200 OK response,
-    // then parse the JSON.
-    return Album.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to load album');
-  }
+  final String tekst;
+  final Future<bool> Function() onVajutus;
+  final Listenable muutused;
+
+  @override
+  State<VorguNupp> createState() => _VorguNuppState();
 }
-class _MyAppState extends State<MyApp> {
-  late Future<Album> futureAlbum;
+
+class _VorguNuppState extends State<VorguNupp> {
+  NupuOlek olek = NupuOlek.algne;
 
   @override
   void initState() {
     super.initState();
-    futureAlbum = fetchAlbum();
+    widget.muutused.addListener(andmedMuutusid);
   }
-  // ···
+
+  @override
+  void dispose() {
+    widget.muutused.removeListener(andmedMuutusid);
+    super.dispose();
+  }
+
+  void andmedMuutusid() {
+    if (olek == NupuOlek.onnestus) {
+      setState(() {
+        olek = NupuOlek.algne;
+      });
+    }
+  }
+
+  Future<void> vajutus() async {
+    // Laadimise ajal või pärast õnnestumist ei tee nupp midagi.
+    if (olek != NupuOlek.algne) return;
+    setState(() {
+      olek = NupuOlek.laeb;
+    });
+    final onnestus = await widget.onVajutus();
+    if (!mounted) return;
+    setState(() {
+      olek = onnestus ? NupuOlek.onnestus : NupuOlek.algne;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget sisu;
+    switch (olek) {
+      case NupuOlek.algne:
+        sisu = Text(widget.tekst);
+      case NupuOlek.laeb:
+        sisu = const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
+      case NupuOlek.onnestus:
+        sisu = const Icon(Icons.check);
+    }
+    return ElevatedButton(onPressed: vajutus, child: sisu);
+  }
 }
-//----------------------------------------------
-// Loading button
-//-----------------------------------------------
-dependencies:
-  loading_icon_button: ^1.1.0
-  import 'package:loading_icon_button/loading_icon_button.dart';
-  LoadingButton(
-  final response = await http.get(
-    Uri.parse('http://192.168.46.75:3001/people'),
-    headers: {'Accept': 'application/json'},
-  );
-  Theme.of(context).primaryColor
-  LoadingButtonSizing.legacy
-  onPressed: () async => submit(),
-  onSuccess: () => debugPrint('done'),
-  onFailure: (Object error, StackTrace stack) => report(error, stack),
-  child: const Text('Submit'),
-)
-
-
-//Commands 
-// git pull
-// git add .
-// git push
-// git commit
