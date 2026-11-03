@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 const String serveriAadress = 'http://192.168.46.75:3001/people';
 
 // Muuda siin: teie grupi päris liikmed (ülesanded 2 ja 3).
-const List<String> grupiLiikmed = ['Laura-Liis', 'Anastasia'];
+const List<String> grupiLiikmed = ['Laura-Liis', 'Gerda', 'Anastasia'];
 
 void main() {
   runApp(const MinuRakendus());
