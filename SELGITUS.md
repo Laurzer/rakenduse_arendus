@@ -10,5 +10,7 @@ Kogu kood on failis `lib/main.dart`. Käivita: `flutter pub get`, siis `flutter 
 | 4. Failist lugemine | `InimesedLeht` | `rootBundle.loadString` loeb faili `assets/inimesed.json` ja `jsonDecode` teeb sellest nimekirja. |
 | 6. HTTP kasutus | `ServerLeht` | `http.get` näitab, `http.post` lisab, `http.delete` kustutab. |
 | 7. Võrgukutse nupp | `VorguNupp` | Nupul on kolm olekut: algne, laeb ja õnnestus. Ebaõnnestumisel läheb tagasi algolekusse. Nimevälja või vanusevälja muutmine viib õnnestunud nupu tagasi algolekusse. |
+| 8. Taaskasutatavad osad | `lib/kaardid.dart`, `KursuseKaart` | Sama kaart on avalehel ja lehel Kursused. Pilt laaditakse internetist. Vorm lisab ja muudab kursusi, prügikasti nupp eemaldab. |
+| 9. Horisontaalne scroll | `KursusedLeht` | `ListView.builder` kerib külgsuunas ja loob ainult nähtavad kaardid, nii laetakse pildid siis, kui neid on vaja. |
 
 Enne esitamist muuda faili alguses `grupiLiikmed` ja `serveriAadress`.

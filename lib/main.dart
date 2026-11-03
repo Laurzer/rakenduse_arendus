@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
+import 'kaardid.dart';
+
 // Muuda siin: 300X, kus X on teie tiimi number (ülesanne 6).
 const String serveriAadress = 'http://192.168.46.75:3001/people';
 
@@ -32,6 +34,7 @@ class MinuRakendus extends StatelessWidget {
         '/meie': (context) => const MeieLeht(),
         '/inimesed': (context) => const InimesedLeht(),
         '/server': (context) => const ServerLeht(),
+        '/kursused': (context) => const KursusedLeht(),
       },
     );
   }
@@ -65,6 +68,7 @@ class LeheRaam extends StatelessWidget {
                 _lingiNupp(context, 'Meie', '/meie'),
                 _lingiNupp(context, 'Inimesed', '/inimesed'),
                 _lingiNupp(context, 'Server', '/server'),
+                _lingiNupp(context, 'Kursused', '/kursused'),
               ],
             ),
           ),
@@ -91,15 +95,23 @@ class KoduLeht extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const LeheRaam(
+    return LeheRaam(
       pealkiri: 'Kodu',
-      sisu: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text(
-          'Tere tulemast! See on meie grupi Flutteri õpperakendus. '
-          'Rakenduses saab vaadata grupi liikmeid, lugeda andmeid failist '
-          'ning hallata serveris olevaid inimesi.',
-        ),
+      sisu: ListView(
+        padding: const EdgeInsets.all(24),
+        children: [
+          const Text(
+            'Tere tulemast! See on meie grupi Flutteri õpperakendus. '
+            'Rakenduses saab vaadata grupi liikmeid, lugeda andmeid failist '
+            'ning hallata serveris olevaid inimesi.',
+          ),
+          const SizedBox(height: 16),
+          // Sama kaart on kasutusel ka lehel Kursused (ülesanne 8).
+          Align(
+            alignment: Alignment.topLeft,
+            child: KursuseKaart(kursus: naidisKursused.first),
+          ),
+        ],
       ),
     );
   }
