@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'l10n/app_localizations.dart';
 import 'main.dart';
 
 // Üks kursus: nimi, kirjeldus ja internetist laetava pildi aadress.
@@ -58,6 +59,7 @@ class KursuseKaart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return SizedBox(
       width: 260,
       child: Card(
@@ -70,6 +72,8 @@ class KursuseKaart extends StatelessWidget {
               aspectRatio: 16 / 9,
               child: Image.network(
                 kursus.pildiAadress,
+                // Ülesanne 12: pilt dekodeeritakse näidatavas suuruses.
+                cacheWidth: 520,
                 fit: BoxFit.cover,
                 semanticLabel: kursus.nimi,
                 loadingBuilder: (context, pilt, edenemine) {
@@ -101,13 +105,13 @@ class KursuseKaart extends StatelessWidget {
                 children: [
                   if (onMuuda != null)
                     IconButton(
-                      tooltip: 'Muuda',
+                      tooltip: t.muuda,
                       icon: const Icon(Icons.edit),
                       onPressed: onMuuda,
                     ),
                   if (onEemalda != null)
                     IconButton(
-                      tooltip: 'Eemalda',
+                      tooltip: t.eemalda,
                       icon: const Icon(Icons.delete),
                       onPressed: onEemalda,
                     ),
@@ -169,10 +173,13 @@ class _KursusedLehtState extends State<KursusedLeht> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    // Ülesanne 10: rida kasvab koos kasutaja valitud teksti suurusega.
+    final korgus = 242 + MediaQuery.textScalerOf(context).scale(88);
     return LeheRaam(
-      pealkiri: 'Kursused',
+      pealkiri: t.kursused,
       lisaNupp: FloatingActionButton(
-        tooltip: 'Lisa kursus',
+        tooltip: t.lisaKursus,
         onPressed: lisa,
         child: const Icon(Icons.add),
       ),
@@ -181,7 +188,7 @@ class _KursusedLehtState extends State<KursusedLeht> {
         child: Align(
           alignment: Alignment.topLeft,
           child: SizedBox(
-            height: 320,
+            height: korgus,
             child: Scrollbar(
               controller: kerimine,
               thumbVisibility: true,
@@ -224,7 +231,7 @@ class _KursuseVormState extends State<KursuseVorm> {
   late final TextEditingController nimi;
   late final TextEditingController kirjeldus;
   late final TextEditingController pilt;
-  String? viga;
+  bool nimiPuudub = false;
 
   @override
   void initState() {
@@ -246,7 +253,7 @@ class _KursuseVormState extends State<KursuseVorm> {
     final uusNimi = nimi.text.trim();
     if (uusNimi.isEmpty) {
       setState(() {
-        viga = 'Sisesta kursuse nimi.';
+        nimiPuudub = true;
       });
       return;
     }
@@ -264,25 +271,27 @@ class _KursuseVormState extends State<KursuseVorm> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(widget.algne == null ? 'Lisa kursus' : 'Muuda kursust'),
+      title: Text(widget.algne == null ? t.lisaKursus : t.muudaKursust),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: nimi,
-              decoration: InputDecoration(labelText: 'Nimi', errorText: viga),
+              decoration: InputDecoration(
+                labelText: t.nimi,
+                errorText: nimiPuudub ? t.sisestaNimi : null,
+              ),
             ),
             TextField(
               controller: kirjeldus,
-              decoration: const InputDecoration(labelText: 'Kirjeldus'),
+              decoration: InputDecoration(labelText: t.kirjeldus),
             ),
             TextField(
               controller: pilt,
-              decoration: const InputDecoration(
-                labelText: 'Pildi aadress (pole kohustuslik)',
-              ),
+              decoration: InputDecoration(labelText: t.pildiAadress),
             ),
           ],
         ),
@@ -290,9 +299,9 @@ class _KursuseVormState extends State<KursuseVorm> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Tühista'),
+          child: Text(t.tuhista),
         ),
-        ElevatedButton(onPressed: salvesta, child: const Text('Salvesta')),
+        ElevatedButton(onPressed: salvesta, child: Text(t.salvesta)),
       ],
     );
   }

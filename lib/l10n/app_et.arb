@@ -1,0 +1,75 @@
+{
+  "@@locale": "et",
+  "rakenduseNimi": "Rakenduse arendus",
+  "kodu": "Kodu",
+  "meie": "Meie",
+  "inimesed": "Inimesed",
+  "server": "Server",
+  "kursused": "Kursused",
+  "keeleNupp": "EN",
+  "keeleVihje": "Switch to English",
+  "tervitus": "Tere tulemast! See on meie grupi Flutteri õpperakendus. Rakenduses saab vaadata grupi liikmeid, lugeda andmeid failist ning hallata serveris olevaid inimesi.",
+  "tanaOn": "Täna on {kuupaev}",
+  "@tanaOn": {
+    "placeholders": {
+      "kuupaev": {
+        "type": "String"
+      }
+    }
+  },
+  "naitaNimekirja": "Näita nimekirja",
+  "peidaNimekiri": "Peida nimekiri",
+  "jargmineNimi": "Näita järgmist nime",
+  "inimesedFailist": "Inimesed failist",
+  "failiViga": "Faili lugemine ebaõnnestus: {viga}",
+  "@failiViga": {
+    "placeholders": {
+      "viga": {
+        "type": "String"
+      }
+    }
+  },
+  "vanus": "Vanus: {vanus}",
+  "@vanus": {
+    "placeholders": {
+      "vanus": {
+        "type": "String"
+      }
+    }
+  },
+  "liige": "Liige",
+  "poleLiige": "Pole liige",
+  "inimesedServeris": "Inimesed serveris",
+  "nimi": "Nimi",
+  "vanuseVali": "Vanus",
+  "saadaServerisse": "Saada serverisse",
+  "saadan": "Saatmine käib",
+  "saadetud": "Saadetud",
+  "laadimiseViga": "Andmete laadimine ebaõnnestus: {viga}",
+  "@laadimiseViga": {
+    "placeholders": {
+      "viga": {
+        "type": "String"
+      }
+    }
+  },
+  "saatmiseViga": "Saatmine ebaõnnestus. Kontrolli välju ja ühendust.",
+  "kustutamiseViga": "Kustutamine ebaõnnestus: {viga}",
+  "@kustutamiseViga": {
+    "placeholders": {
+      "viga": {
+        "type": "String"
+      }
+    }
+  },
+  "kustuta": "Kustuta",
+  "muuda": "Muuda",
+  "eemalda": "Eemalda",
+  "lisaKursus": "Lisa kursus",
+  "muudaKursust": "Muuda kursust",
+  "kirjeldus": "Kirjeldus",
+  "pildiAadress": "Pildi aadress (pole kohustuslik)",
+  "sisestaNimi": "Sisesta kursuse nimi.",
+  "tuhista": "Tühista",
+  "salvesta": "Salvesta"
+}
