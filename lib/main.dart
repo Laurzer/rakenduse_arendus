@@ -18,6 +18,10 @@ const Duration ajapiirang = Duration(seconds: 10);
 // Grupi liikmed (ülesanded 2 ja 3).
 const List<String> grupiLiikmed = ['Laura-Liis', 'Gerda', 'Anastasia'];
 
+// Kujundus: rakenduse põhivärv ja sisu suurim laius.
+const Color pohiVarv = Color(0xFF0F766E);
+const double sisuLaius = 880;
+
 // Ülesanne 11: valitud keel. Väärtuse muutmine uuendab kogu rakendust.
 final ValueNotifier<Locale> keel = ValueNotifier(const Locale('et'));
 
@@ -48,9 +52,7 @@ class MinuRakendus extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          ),
+          theme: looTeema(),
           // Ülesanne 2: igal lehel on oma aadress.
           initialRoute: '/',
           routes: {
@@ -64,6 +66,44 @@ class MinuRakendus extends StatelessWidget {
       },
     );
   }
+}
+
+// Ühine välimus: värvid, kaardid, nupud ja väljad on määratud ühes kohas.
+ThemeData looTeema() {
+  final varvid = ColorScheme.fromSeed(seedColor: pohiVarv).copyWith(
+    primary: pohiVarv,
+    surface: const Color(0xFFF7FAF9),
+  );
+  final nurgad = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
+  return ThemeData(
+    colorScheme: varvid,
+    scaffoldBackgroundColor: varvid.surface,
+    appBarTheme: AppBarTheme(
+      backgroundColor: varvid.primary,
+      foregroundColor: varvid.onPrimary,
+      centerTitle: false,
+    ),
+    cardTheme: CardThemeData(
+      elevation: 0,
+      color: Colors.white,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: varvid.outlineVariant),
+      ),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(160, 48),
+        shape: nurgad,
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    ),
+  );
 }
 
 // Sama päis ja navigeerimine kõigil lehtedel.
@@ -82,44 +122,73 @@ class LeheRaam extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    final varvid = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: Semantics(header: true, child: Text(pealkiri)),
         actions: [
-          TextButton(
-            onPressed: () {
-              keel.value = keel.value.languageCode == 'et'
-                  ? const Locale('en')
-                  : const Locale('et');
-            },
-            child: Semantics(label: t.keeleVihje, child: Text(t.keeleNupp)),
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: varvid.onPrimary,
+                side: BorderSide(color: varvid.onPrimary),
+              ),
+              onPressed: () {
+                keel.value = keel.value.languageCode == 'et'
+                    ? const Locale('en')
+                    : const Locale('et');
+              },
+              child: Semantics(label: t.keeleVihje, child: Text(t.keeleNupp)),
+            ),
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _lingiNupp(context, t.kodu, '/'),
-                _lingiNupp(context, t.meie, '/meie'),
-                _lingiNupp(context, t.inimesed, '/inimesed'),
-                _lingiNupp(context, t.server, '/server'),
-                _lingiNupp(context, t.kursused, '/kursused'),
-              ],
+          preferredSize: const Size.fromHeight(60),
+          child: Center(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _lingiNupp(context, t.kodu, '/'),
+                  _lingiNupp(context, t.meie, '/meie'),
+                  _lingiNupp(context, t.inimesed, '/inimesed'),
+                  _lingiNupp(context, t.server, '/server'),
+                  _lingiNupp(context, t.kursused, '/kursused'),
+                ],
+              ),
             ),
           ),
         ),
       ),
-      body: sisu,
+      // Sisu on keskel ega veni laial ekraanil üle kogu lehe.
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: sisuLaius),
+          child: sisu,
+        ),
+      ),
       floatingActionButton: lisaNupp,
     );
   }
 
+  // Aktiivne leht on heleda taustaga, et kasutaja näeks, kus ta asub.
   Widget _lingiNupp(BuildContext context, String tekst, String aadress) {
-    return TextButton(
-      onPressed: () => Navigator.of(context).pushReplacementNamed(aadress),
-      child: Text(tekst),
+    final varvid = Theme.of(context).colorScheme;
+    final aktiivne = ModalRoute.of(context)?.settings.name == aadress;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: aktiivne ? varvid.onPrimary : Colors.transparent,
+          foregroundColor: aktiivne ? varvid.primary : varvid.onPrimary,
+        ),
+        onPressed: () => Navigator.of(context).pushReplacementNamed(aadress),
+        child: Text(tekst),
+      ),
     );
   }
 }
@@ -137,19 +206,58 @@ class KoduLeht extends StatelessWidget {
     final kuupaev = MaterialLocalizations.of(
       context,
     ).formatFullDate(DateTime.now());
+    final teema = Theme.of(context);
     return LeheRaam(
       pealkiri: t.kodu,
       sisu: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          Text(t.tervitus),
-          const SizedBox(height: 8),
-          Text(t.tanaOn(kuupaev)),
-          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: teema.colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.rakenduseNimi,
+                  style: teema.textTheme.headlineMedium?.copyWith(
+                    color: teema.colorScheme.onPrimaryContainer,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  t.tervitus,
+                  style: TextStyle(color: teema.colorScheme.onPrimaryContainer),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  t.tanaOn(kuupaev),
+                  style: TextStyle(color: teema.colorScheme.onPrimaryContainer),
+                ),
+                const SizedBox(height: 20),
+                FilledButton(
+                  onPressed: () => Navigator.of(
+                    context,
+                  ).pushReplacementNamed('/kursused'),
+                  child: Text(t.kursused),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           // Sama kaart on kasutusel ka lehel Kursused (ülesanne 8).
-          Align(
-            alignment: Alignment.topLeft,
-            child: KursuseKaart(kursus: naidisKursused.first),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              for (final kursus in naidisKursused.take(3))
+                KursuseKaart(kursus: kursus),
+            ],
           ),
         ],
       ),
@@ -191,27 +299,56 @@ class _MeieLehtState extends State<MeieLeht> {
       sisu: ListView(
         padding: const EdgeInsets.all(24),
         children: [
-          ElevatedButton(
-            onPressed: vahetaNimekirja,
-            child: Text(nimekiriNahtav ? t.peidaNimekiri : t.naitaNimekirja),
-          ),
-          if (nimekiriNahtav)
-            for (final nimi in grupiLiikmed)
-              ListTile(leading: const Icon(Icons.person), title: Text(nimi)),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: naitaJargmist,
-            child: Text(t.jargmineNimi),
-          ),
-          const SizedBox(height: 12),
-          if (nimeJarjekord >= 0)
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                grupiLiikmed[nimeJarjekord],
-                style: Theme.of(context).textTheme.headlineSmall,
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      FilledButton(
+                        onPressed: vahetaNimekirja,
+                        child: Text(
+                          nimekiriNahtav ? t.peidaNimekiri : t.naitaNimekirja,
+                        ),
+                      ),
+                      FilledButton.tonal(
+                        onPressed: naitaJargmist,
+                        child: Text(t.jargmineNimi),
+                      ),
+                    ],
+                  ),
+                  if (nimeJarjekord >= 0) ...[
+                    const SizedBox(height: 16),
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        grupiLiikmed[nimeJarjekord],
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                  ],
+                  if (nimekiriNahtav) ...[
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final nimi in grupiLiikmed)
+                          Chip(
+                            avatar: const Icon(Icons.person, size: 18),
+                            label: Text(nimi),
+                          ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
+          ),
         ],
       ),
     );
@@ -267,14 +404,24 @@ class _InimesedLehtState extends State<InimesedLeht> {
       sisu = Center(child: Text(t.failiViga(viga!)));
     } else {
       sisu = ListView.builder(
+        padding: const EdgeInsets.all(24),
         itemCount: inimesed.length,
         itemBuilder: (context, indeks) {
           final inimene = inimesed[indeks];
-          return ListTile(
-            leading: const Icon(Icons.person),
-            title: Text('${inimene['nimi']}'),
-            subtitle: Text(t.vanus('${inimene['vanus']}')),
-            trailing: Text(inimene['member'] == true ? t.liige : t.poleLiige),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Card(
+              child: ListTile(
+                leading: const CircleAvatar(child: Icon(Icons.person)),
+                title: Text('${inimene['nimi']}'),
+                subtitle: Text(t.vanus('${inimene['vanus']}')),
+                trailing: Chip(
+                  label: Text(
+                    inimene['member'] == true ? t.liige : t.poleLiige,
+                  ),
+                ),
+              ),
+            ),
           );
         },
       );
@@ -395,27 +542,60 @@ class _ServerLehtState extends State<ServerLeht> {
   }
 
   Widget vorm(AppLocalizations t) {
+    final nimeLahter = TextField(
+      controller: nimeVali,
+      decoration: InputDecoration(labelText: t.nimi),
+    );
+    final vanuseLahter = TextField(
+      controller: vanuseVali,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(labelText: t.vanuseVali),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
-          controller: nimeVali,
-          decoration: InputDecoration(labelText: t.nimi),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: vanuseVali,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(labelText: t.vanuseVali),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Laias vaates on väljad kõrvuti, kitsas üksteise all.
+                LayoutBuilder(
+                  builder: (context, piirid) {
+                    if (piirid.maxWidth < 480) {
+                      return Column(
+                        children: [
+                          nimeLahter,
+                          const SizedBox(height: 12),
+                          vanuseLahter,
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(flex: 2, child: nimeLahter),
+                        const SizedBox(width: 12),
+                        Expanded(child: vanuseLahter),
+                      ],
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Ülesanne 7. Muudetud andmed viivad nupu tagasi algolekusse.
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: VorguNupp(
+                    tekst: t.saadaServerisse,
+                    muutused: Listenable.merge([nimeVali, vanuseVali]),
+                    onVajutus: lisaInimene,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 16),
-        // Ülesanne 7. Muudetud andmed viivad nupu tagasi algolekusse.
-        VorguNupp(
-          tekst: t.saadaServerisse,
-          muutused: Listenable.merge([nimeVali, vanuseVali]),
-          onVajutus: lisaInimene,
-        ),
-        const SizedBox(height: 24),
         if (laeb) const Center(child: CircularProgressIndicator()),
         if (viga != null)
           Semantics(liveRegion: true, child: Text(t.laadimiseViga(viga!))),
@@ -435,13 +615,18 @@ class _ServerLehtState extends State<ServerLeht> {
         itemBuilder: (context, indeks) {
           if (indeks == 0) return vorm(t);
           final inimene = inimesed[indeks - 1];
-          return ListTile(
-            title: Text('${inimene['nimi']}'),
-            subtitle: Text(t.vanus('${inimene['vanus']}')),
-            trailing: IconButton(
-              tooltip: t.kustuta,
-              icon: const Icon(Icons.delete),
-              onPressed: () => kustutaInimene(inimene['id']),
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Card(
+              child: ListTile(
+                title: Text('${inimene['nimi']}'),
+                subtitle: Text(t.vanus('${inimene['vanus']}')),
+                trailing: IconButton(
+                  tooltip: t.kustuta,
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => kustutaInimene(inimene['id']),
+                ),
+              ),
             ),
           );
         },
@@ -515,10 +700,13 @@ class _VorguNuppState extends State<VorguNupp> {
         sisu = Semantics(
           liveRegion: true,
           label: t.saadan,
-          child: const SizedBox(
+          child: SizedBox(
             width: 20,
             height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
           ),
         );
       case NupuOlek.onnestus:
@@ -527,6 +715,6 @@ class _VorguNuppState extends State<VorguNupp> {
           child: Icon(Icons.check, semanticLabel: t.saadetud),
         );
     }
-    return ElevatedButton(onPressed: vajutus, child: sisu);
+    return FilledButton(onPressed: vajutus, child: sisu);
   }
 }

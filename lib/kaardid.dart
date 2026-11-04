@@ -186,7 +186,7 @@ class _KursusedLehtState extends State<KursusedLeht> {
       sisu: Padding(
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Align(
-          alignment: Alignment.topLeft,
+          alignment: Alignment.topCenter,
           child: SizedBox(
             height: korgus,
             child: Scrollbar(
@@ -202,10 +202,14 @@ class _KursusedLehtState extends State<KursusedLeht> {
                 itemBuilder: (context, indeks) {
                   return Padding(
                     padding: const EdgeInsets.only(right: 12, bottom: 16),
-                    child: KursuseKaart(
-                      kursus: kursused[indeks],
-                      onMuuda: () => muuda(indeks),
-                      onEemalda: () => eemalda(indeks),
+                    // Align hoiab kaardi oma kõrgusel, nii et see ei veni.
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: KursuseKaart(
+                        kursus: kursused[indeks],
+                        onMuuda: () => muuda(indeks),
+                        onEemalda: () => eemalda(indeks),
+                      ),
                     ),
                   );
                 },
