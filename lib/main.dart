@@ -10,7 +10,7 @@ import 'kaardid.dart';
 import 'l10n/app_localizations.dart';
 
 // Muuda siin: 300X, kus X on teie tiimi number (ülesanne 6).
-const String serveriAadress = 'http://192.168.46.75:3001/people';
+const String serveriAadress = 'http://192.168.41.12:3001/people';
 
 // Ülesanne 12: aeglane võrgukutse ei jää ootama igavesti.
 const Duration ajapiirang = Duration(seconds: 10);
