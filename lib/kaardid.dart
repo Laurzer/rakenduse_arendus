@@ -89,13 +89,21 @@ class KursuseKaart extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                // Kuni 2 rida nime ja 2 rida kirjeldust, pikem tekst lõpeb
+                // kolme punktiga. Nii mahub kaart Kursused lehe rea sisse.
                 children: [
                   Text(
                     kursus.nimi,
                     style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(kursus.kirjeldus),
+                  Text(
+                    kursus.kirjeldus,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ],
               ),
             ),
