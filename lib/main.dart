@@ -16,7 +16,7 @@ const String serveriAadress = 'http://192.168.46.75:3001/people';
 const Duration ajapiirang = Duration(seconds: 10);
 
 // Grupi liikmed (ülesanded 2 ja 3).
-const List<String> grupiLiikmed = ['Laura-Liis', 'Gerda', 'Anastasia'];
+const List<String> grupiLiikmed = ['Laura-Liis', 'Gerda'];
 
 // Kujundus: rakenduse põhivärv ja sisu suurim laius.
 const Color pohiVarv = Color(0xFF0F766E);
